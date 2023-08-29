@@ -9,13 +9,13 @@ USE empresa;
 
 //---------- CREAR TABLAS  ---------------------
 CREATE TABLE IF NOT EXISTS personas (
-    id_personas int NOT NULL auto_increment,
+    id_personas int NOT NULL auto_increment,--El atributo id_persona es de valor entero/numero(int). NOT NULL->No puede ser nulo/vacio. auto_incremente-> a medida que se ingrese un registro este atributo va a tener un valor(+1) al anterior registro.
     dni int NOT NULL,
     apyn varchar(20),
     email varchar(20),
     telefono int,
-    PRIMARY KEY (id_personas)
-);
+    PRIMARY KEY (id_personas) --La Primary key es el valor unico de los registro que van a poseer para diferenciarse de otros atributos
+);--en este caso, personas no va a poseer llave foranea ya que esta tabla es como una table padre
 
 CREATE TABLE IF NOT EXISTS clientes (
     id_cliente int  NOT NULL auto_increment,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     credito int,
     id_personas int,
     PRIMARY KEY (id_cliente),
-    FOREIGN KEY (id_personas) REFERENCES personas(id_personas)
+    FOREIGN KEY (id_personas) REFERENCES personas(id_personas) --la llave fornaea de clientes es id_personas, ya que esta tabla esta relacionada con la tabla personas, es decir, la foreign_Key de una tabla es la llave Primary_key de la tabla con la que se realciona.
 );
 
 CREATE TABLE IF NOT EXISTS empleados (
@@ -56,13 +56,13 @@ ALTER TABLE clientes ADD CONSTRAINT id_cliente PRIMARY KEY (id_cliente);
 ALTER TABLE empleados ADD CONSTRAINT id_empleado PRIMARY KEY (id_empleado);
 ALTER TABLE facturas ADD CONSTRAINT n_factura PRIMARY KEY (n_factura);
 ALTER TABLE productos ADD CONSTRAINT id_producto PRIMARY KEY (id_producto);
-//es importante crear primero la llave primeria antes que la foranea sino devuelve error
+//--es importante crear primero la llave primeria antes que la foranea sino devuelve error
 ALTER TABLE clientes ADD CONSTRAINT dni FOREIGN KEY (dni) REFERENCES personas(dni);
 ALTER TABLE empleados ADD CONSTRAINT dni FOREIGN KEY (dni) REFERENCES personas(dni);
 ALTER TABLE facturas ADD CONSTRAINT id_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente);
 
 //-- TAMBIEN SE PUEDE HACER EN UNA LINEA:
-// ALTER TABLE clientes ADD CONSTRAINT id_cliente PRIMARY KEY (id_cliente), ADD CONSTRAINT dni FOREIGN KEY (dni) REFERENCES personas(dni);
+//-- ALTER TABLE clientes ADD CONSTRAINT id_cliente PRIMARY KEY (id_cliente), ADD CONSTRAINT dni FOREIGN KEY (dni) REFERENCES personas(dni);
 //
 
 
@@ -70,7 +70,7 @@ ALTER TABLE facturas ADD CONSTRAINT id_cliente FOREIGN KEY (id_cliente) REFERENC
 
 
 //--------------------------------------------------------------------------------------------------------
-//------------  OTROS  ---------------
+//------------  OTROS  
 //--------------------------------------------------------------------------------------------------------
 
 ALTER TABLE facturas CHANGE COLUMN dni TO id_cliente varchar(20);
@@ -80,6 +80,7 @@ ALTER TABLE facturas ADD COLUMN id_cliente int;
 DROP DATABASE empresa;
 //--actualizar un dato de la tabla
 UPDATE personas SET dni=40444444 WHERE id_personas=3; //--si no agrego el where me modificaria todos los dni
+UPDATE facturas SET total= 55005 WHERE id_facturas=6;
 //--limpiar shell
 system cls
 
@@ -87,21 +88,43 @@ SELECT * FROM personas;
 
 
 
-//------------  INGRESAR REGISTROS  ---------------
-INSERT INTO personas(dni, apyn, email, telefono) VALUES
-(40111111, 'pepe sanches', 'pepe@hotmail.com', 1132165498),
-(40222222, 'susana sanches', 'susana@hotmail.com', 1165984752),
-(40333333, 'juan tinelli', 'juan@hotmail.com', 1132165498);
-
-INSERT INTO clientes (tarjeta, credito, id_personas) VALUES (6547987498561234, 4321, 3);
+//------------  INGRESAR REGISTROS  ------------------------------------------------------------------------
 
 INSERT INTO personas(dni, apyn, email, telefono) VALUES
-(40555555, 'ricardo ford', 'ricardo@hotmail.com', 1132165498),
-(40666666, 'guillermo francella', 'guillermo@hotmail.com', 1165984752),
-(40777777, 'mario pergolini', 'juan@hotmail.com', 1132165498),
-(40888888, 'pepe biondi', 'pepe@hotmail.com', 1132165498),
-(40999999, 'viviana canosa', 'susana@hotmail.com', 1165984752),
-(40111222, 'chunia villafania', 'juan@hotmail.com', 1132165498);
+(40111333, 'susana gimenez', 'susana@hotmail.com', 1133355599),
+(40111444, 'liliana calabro', 'liliana@hotmail.com', 1188884752),
+(40111555, 'dipy papá', 'dipy@hotmail.com', 11951753),
+(40111666, 'pablo lezcano', 'pablo@hotmail.com', 1132165498),
+(40111777, 'raul alfonsin', 'raul@hotmail.com', 1165984752),
+(40111888, 'alex caniggia', 'alex@hotmail.com', 1132165498);
 
-INSERT INTO personas(dni, apyn, email, telefono) VALUES
-(40111333, 'mirtha legrand', 'mirtha@hotmail.com', 11258369);
+
+INSERT INTO clientes (n_tarjeta, credito, id_personas) VALUES (6547987498561237, 3778, 4);
+
+INSERT INTO facturas (cod_facturas, total, id_cliente) VALUES 
+('fempn_123455', 50000, 4),
+('fempn_123454', 100000, 4),
+('fempn_123453', 50000, 1);
+
+
+
+//------------ JOIN  -----------------------------------------------------------------------------------
+--INNER--
+SELECT clientes.n_tarjeta, personas.apyn FROM clientes 
+INNER JOIN personas 
+ON clientes.id_personas = personas.id_personas;
+
+
+SELECT facturas.cod_facturas, facturas.total, facturas.id_cliente, clientes.n_tarjeta, clientes.id_personas FROM facturas 
+INNER JOIN clientes 
+ON facturas.id_cliente = clientes.id_cliente;
+
+--LEFT--
+SELECT clientes.n_tarjeta, personas.apyn FROM clientes 
+LEFT JOIN personas 
+ON clientes.id_personas = personas.id_personas;
+
+--RIGHT--
+SELECT clientes.n_tarjeta, personas.apyn FROM personas 
+RIGHT JOIN clientes 
+ON clientes.id_personas = personas.id_personas;
