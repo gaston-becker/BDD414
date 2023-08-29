@@ -118,6 +118,12 @@ ON clientes.id_personas = personas.id_personas;
 SELECT facturas.cod_facturas, facturas.total, facturas.id_cliente, clientes.n_tarjeta, clientes.id_personas FROM facturas 
 INNER JOIN clientes 
 ON facturas.id_cliente = clientes.id_cliente;
+//--ya que al usar esta tabla solo me muestra datos de las facturas y de cliente, pero si tambien quiero saber datos de la persona:
+SELECT facturas.cod_facturas, facturas.total, clientes.n_tarjeta, clientes.id_personas, personas.apyn FROM facturas 
+INNER JOIN clientes 
+ON facturas.id_cliente = clientes.id_cliente
+INNER JOIN personas
+ON clientes.id_personas = personas.id_personas;
 
 --LEFT--
 SELECT clientes.n_tarjeta, personas.apyn FROM clientes 
