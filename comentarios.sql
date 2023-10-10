@@ -3,9 +3,7 @@ CREATE DATABASE IF NOT EXISTS empresa;
 
 USE empresa;
 
-CREATE DATABASE IF NOT EXISTS empresa;
 
-USE empresa;
 
 //---------- CREAR TABLAS  ---------------------
 CREATE TABLE IF NOT EXISTS personas (
@@ -90,7 +88,7 @@ SELECT * FROM personas;
 
 //------------  INGRESAR REGISTROS  ------------------------------------------------------------------------
 
-INSERT INTO personas(dni, apyn, email, telefono) VALUES
+INSERT INTO personas(dni, apyn, email, telefono) VALUES --tengo que especificar los campos, sino me va a querer agregar tambien los campos AutoIncrementales.
 (40111333, 'susana gimenez', 'susana@hotmail.com', 1133355599),
 (40111444, 'liliana calabro', 'liliana@hotmail.com', 1188884752),
 (40111555, 'dipy papá', 'dipy@hotmail.com', 11951753),
@@ -124,6 +122,13 @@ INNER JOIN clientes
 ON facturas.id_cliente = clientes.id_cliente
 INNER JOIN personas
 ON clientes.id_personas = personas.id_personas;
+//--puedo agregar una condicion para solo ver el de una persona en especifico por ejemplo:
+SELECT facturas.cod_facturas, facturas.total, clientes.n_tarjeta, clientes.id_personas, personas.apyn FROM facturas 
+INNER JOIN clientes 
+ON facturas.id_cliente = clientes.id_cliente
+INNER JOIN personas
+ON clientes.id_personas = personas.id_personas
+WHERE persona.apyn=susana gimenez;
 
 --LEFT--
 SELECT clientes.n_tarjeta, personas.apyn FROM clientes 
@@ -134,3 +139,113 @@ ON clientes.id_personas = personas.id_personas;
 SELECT clientes.n_tarjeta, personas.apyn FROM personas 
 RIGHT JOIN clientes 
 ON clientes.id_personas = personas.id_personas;
+
+
+//------------ Usuario  -----------------------------------------------------
+la idea es primero entrar con el usuario root, para crear los demas usuarios, y con estos usuario si trabajar con las tablas
+--crear usuario:
+CREATE USER 'clase'@'localhost' IDENTIFIED BY '123456';
+//--puede ser que nos pida una contraseña dificl
+//--significa en donde va a esta, en este caso en}n localhost. O por ejemplo @gmail, significa que está dominio de Gmail
+--para editar la contraseña:
+ALTER USER 'clases'@'localhost' INDENTIFIED BY 'Admin123456';
+
+
+
+
+
+-- Ingresar a la shell
+mysql -u clases1 -p
+--Password:
+Admin123456
+
+//--Conceder permisos al usuario:
+--? GRANT ALL ON sqljava.* TO 'clases1'@'localhost';
+GRANT ALL PRIVILEGES ON db_tinelli.* TO 'tinelli'@'localhost';--db_tinelli.*  -> con el '.*' le digo que le doy acceso a todas las tablas. Si quisiera pudiera especificar a q tabla puede tener acceso
+--GRANT SELECT, DROP PRIVILEGES...
+
+
+CREATE TABLE IF NOT EXISTS tb_hq (
+    id_hq int  NOT NULL auto_increment,
+    nom varchar(40),
+    dni int,
+    email int,
+    PRIMARY KEY (id_hq)
+);
+CREATE TABLE IF NOT EXISTS tb_estudio1 (
+    id_estudio1 int  NOT NULL auto_increment,
+    categoria varchar(20),
+    sueldo int,
+    id_hq int NOT NULL,
+    PRIMARY KEY (id_estudio1),
+    FOREIGN KEY (id_hq) REFERENCES tb_hq(id_hq) 
+    ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS tb_estudio2 (
+    id_estudio2 int  NOT NULL auto_increment,
+    categoria varchar(20),
+    sueldo int,
+    id_hq int NOT NULL,
+    PRIMARY KEY (id_estudio2),
+    FOREIGN KEY (id_hq) REFERENCES tb_hq(id_hq) 
+);
+--ON DELETE CASCADE -> al momentode eliminar un registro de tb_hq, con este comando elimino tmbien el elemento relacionado en en estudio1/2.
+
+INSERT INTO tb_hq (dni, nom, email) VALUES
+    (40111333, 'susana gimenez', 'susana@hotmail.com'),
+    (40111444, 'liliana calabro', 'liliana@hotmail.com'),
+    (40111555, 'dipy papá', 'dipy@hotmail.com'),
+    (40111666, 'pablo lezcano', 'pablo@hotmail.com'),
+    (40111777, 'raul alfonsin', 'raul@hotmail.com'),
+    (40111888, 'alex caniggia', 'alex@hotmail.com'),
+    (40111999, 'enana feudale', 'feudale@hotmail.com'),
+    (40111212, 'alacran X', 'X@hotmail.com')
+    ;
+
+INSERT INTO tb_estudio1 (id_hq, categoria, sueldo) VALUES
+    (2, 'reidor',  200),
+    (4, 'esclavo', 250),
+    (6, 'bailarin',450),
+    (8, 'reidor',  270)
+    ;
+
+INSERT INTO tb_estudio2 (id_hq, categoria, sueldo) VALUES
+    (1, 'esclavo',  230),
+    (3, 'reidor',   250),
+    (5, 'bailarin', 500),
+    (7, 'bailarin', 470)
+    ; 
+
+    INSERT INTO tb_hq (dni, nom, email) VALUES
+    (40111753, 'Fernando de laRua', 'fercho@hotmail.com');
+
+INSERT INTO tb_estudio2 (categoria, sueldo, id_hq) VALUES
+('invitado',  10, 9);
+
+SELECT sueldo FROM tb_hq INNER JOIN tb_estudio2 ON tb_estudio2.id_hq = tb_hq.id_hq WHERE tb_hq.id_hq = 9;
+
+GmailUnir 2 tablas:
+SELECT tb_hq.nom, tb_estudio1.sueldo, tb_estudio2.sueldo FROM tb_hq INNER JOIN tb_estudio2 ON tb_hq.id_hq = tb_estudio2.id_hq INNER JOIN tb_estudio1 ON tb_hq.id_hq = tb_estudio1.id_hq;
+
+----------------------------------------------------------------------------------------------------
+----  ALMACEN  ----------
+CREATE TABLE IF NOT EXISTS  (
+    codigo_art varchar NOT NULL,
+    nombre varchar(20),
+    marca varchar(20),
+    precio int,
+    cuit_prov int NOT NULL,
+    CONSTRAINT pk_articulos PRIMARY KEY (codigo_art) -->Usamos constraint para indicar como vamos a llamar a la primaryKey, esta sentencia sirce como para poner "apodos". y "PK_" es de Primary Key 
+    ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS tb_Art_Proveedores(
+    codigo_art VARCHAR(20),
+    cuit_prov VARCHAR(20),
+    CONSTRAINT pk_artprov PRIMARY KEY (cod_art, cuit_prov)-->En este caso nuestra clave es compuesta, posee 2 codigos para ser indentifiada
+    FOREIGN KEY (cod_art) REFERENCES tb_Art_limpieza(pk_articulos) 
+    FOREIGN KEY (cuit_prov) REFERENCES tb_Art_Proveedores(pk_prov) 
+);
+
+
+
